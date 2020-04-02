@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Game;
-use Illuminate\Http\Request;
+use App\Http\Requests\GameRequest;
 
 class GameController extends Controller
 {
@@ -14,17 +14,7 @@ class GameController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return Game::all();
     }
 
     /**
@@ -33,9 +23,10 @@ class GameController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(GameRequest $request)
     {
-        //
+        $day = Game::create($request->validate());
+        return $day;
     }
 
     /**
@@ -46,30 +37,21 @@ class GameController extends Controller
      */
     public function show(Game $game)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Game  $game
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Game $game)
-    {
-        //
+        return Game::findOrFail($game);
     }
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Game  $game
-     * @return \Illuminate\Http\Response
+     * @param GameRequest $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Game $game)
+    public function update(GameRequest $request, $id)
     {
-        //
+        $game = Game::findOrFail($id);
+        $game->fill($request->except(['game_id']));
+        $game->save();
+        return response()->json($game);
     }
 
     /**
@@ -78,8 +60,9 @@ class GameController extends Controller
      * @param  \App\Game  $game
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Game $game)
+    public function destroy(GameRequest $request, $id)
     {
-        //
+        $game = Game::findOrFail($id);
+        if ($game->delete()) return response(null, 204);
     }
 }
